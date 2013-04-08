@@ -1,7 +1,5 @@
 package uk.co.hollowworld.plugins.hollowrpg;
 
-import java.sql.Connection;
-
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -9,9 +7,6 @@ import org.bukkit.command.CommandSender;
 
 
 public class HollowRPGCommands implements CommandExecutor{
-	MySQL MySQL = new MySQL("localhost", "3306", "hollowrpg", "minecraft", "1Wallace");
-	
-	Connection c = null;
 		
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args){
 		if(commandLabel.equalsIgnoreCase("hollow")){
