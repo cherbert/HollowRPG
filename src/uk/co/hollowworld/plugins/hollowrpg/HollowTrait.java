@@ -24,10 +24,10 @@ import net.citizensnpcs.api.trait.Trait;
 
 //This is your trait that will be applied to a npc using the /trait mytraitname command. Each NPC gets its own instance of this class.
 public class HollowTrait extends Trait {
-
-	MySQL MySQL = new MySQL("localhost", "3306", "hollowrpg", "minecraft", "");
-	Connection c = null;
+	
 	HollowRPG plugin = (HollowRPG) Bukkit.getServer().getPluginManager().getPlugin("HollowRPG");
+	
+	Connection c = null;
 	
 	public static HashMap<String, Integer> IsConvo = new HashMap<String, Integer>();
 	
@@ -55,13 +55,14 @@ public class HollowTrait extends Trait {
 			String npc_name = event.getNPC().getFullName();
 			Bukkit.dispatchCommand(player, "npc select");
 			IsConvo.put(player.getName(), 1);
-			c = MySQL.open();
+			c = plugin.myconn.open();
 			
 			try {
 				Statement statement = c.createStatement();
 				ResultSet res;
 				res = statement.executeQuery("SELECT * FROM npcs LEFT JOIN quests ON quests.npc_id = npcs.id WHERE npc_name = '" + npc_name + "'");
 				res.next();
+		
 				if(res.getRow() == 0) {
 					player.sendMessage("Greetings! I can find no quests in the database.");
 					
@@ -98,6 +99,7 @@ public class HollowTrait extends Trait {
 								player.sendMessage(ChatColor.DARK_AQUA + "Goodbye!");
 							}
 					    });
+						c.close();
 						conv.begin();
 						
 					}

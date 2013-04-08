@@ -6,7 +6,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class HollowRPG extends JavaPlugin{
 	
-
+	public MySQL myconn = new MySQL("localhost", "3306", "hollowrpg", "minecraft", "");
+	
 	public void onEnable(){
 		getServer().getPluginManager().registerEvents(new HollowRPGListener(), this);
 		getCommand("hollow").setExecutor(new HollowRPGCommands());
