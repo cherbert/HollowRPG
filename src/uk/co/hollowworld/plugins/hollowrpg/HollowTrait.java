@@ -22,7 +22,6 @@ import net.citizensnpcs.Citizens;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.api.trait.Trait;
 
-
 //This is your trait that will be applied to a npc using the /trait mytraitname command. Each NPC gets its own instance of this class.
 public class HollowTrait extends Trait {
 

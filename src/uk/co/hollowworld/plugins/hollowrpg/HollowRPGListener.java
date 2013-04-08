@@ -19,4 +19,5 @@ public class HollowRPGListener implements Listener {
 		Player p = event.getPlayer();
 		p.sendMessage("HollowQuest Activated");
 	}
+	
 }

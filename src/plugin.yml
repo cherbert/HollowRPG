@@ -2,7 +2,7 @@ main: uk.co.hollowworld.plugins.hollowrpg.HollowRPG
 name: HollowRPG
 version: 1.0
 author: Chris Herbert
-description: Hollowworld Roleplaying Plugin
+description: Hollowworld Roleplaying Plugin.
 commands:
     hollow:
         description: A test command.
