@@ -2,17 +2,21 @@ package uk.co.hollowworld.plugins.hollowrpg;
 
 import java.util.logging.Level;
 
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class HollowRPG extends JavaPlugin{
 	
-	public MySQL myconn = new MySQL("localhost", "3306", "hollowrpg", "minecraft", "");
+	public MySQL myconn = new MySQL("localhost", "3306", "hollowrpg", "minecraft", "1Wallace");
 	
 	public void onEnable(){
 		getServer().getPluginManager().registerEvents(new HollowRPGListener(), this);
 		getCommand("hollow").setExecutor(new HollowRPGCommands());
 		
 		//NPCRegistry registry = CitizensAPI.getNPCRegistry();
+		
 		
 		//NPC npc = registry.createNPC(EntityType.PLAYER, "cubeydoom");
 		
@@ -32,6 +36,10 @@ public class HollowRPG extends JavaPlugin{
 		
 		
 		
+	}
+	@EventHandler(priority=EventPriority.MONITOR, ignoreCancelled = true)
+	public void freezePlayerMove (PlayerMoveEvent event){
+	//if (CheckFreezed(event.getPlayer())) event.setCancelled(true);
 	}
 
 }

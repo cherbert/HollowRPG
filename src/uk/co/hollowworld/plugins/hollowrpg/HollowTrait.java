@@ -52,7 +52,7 @@ public class HollowTrait extends Trait {
 		this.factory = new ConversationFactory(plugin);
 		
 		if(event.getNPC() == this.getNPC()) {
-			String npc_name = event.getNPC().getFullName();
+			player.setWalkSpeed(0);
 			Bukkit.dispatchCommand(player, "npc select");
 			IsConvo.put(player.getName(), 1);
 			c = plugin.myconn.open();
@@ -60,26 +60,31 @@ public class HollowTrait extends Trait {
 			try {
 				Statement statement = c.createStatement();
 				ResultSet res;
-				res = statement.executeQuery("SELECT * FROM npcs LEFT JOIN quests ON quests.npc_id = npcs.id WHERE npc_name = '" + npc_name + "'");
+				res = statement.executeQuery("SELECT * FROM npcs LEFT JOIN quests ON quests.npc_id = npcs.id WHERE npc_id = " + event.getNPC().getId());
 				res.next();
 		
 				if(res.getRow() == 0) {
-					player.sendMessage("Greetings! I can find no quests in the database.");
-					
+					player.sendMessage("Greetings! I am sorry but I have no quests for you.");
+					IsConvo.put(player.getName(),0);
 				} else {
 					NPC npc;
 					npc =	((Citizens)	Bukkit.getServer().getPluginManager().getPlugin("Citizens")).getNPCSelector().getSelected(player);
 					if(npc != null ){
 						player.sendMessage("");
 						player.sendMessage(res.getString("greeting_text"));
-						player.sendMessage(ChatColor.YELLOW + "You are now in NPC Chat mode. To exit type " + ChatColor.WHITE + "exit");
+						player.sendMessage(ChatColor.YELLOW + "You are now in NPC Chat mode. To exit type " + ChatColor.WHITE + "/exit");
 						player.sendMessage("");
 						
 						
 						Map<Object, Object> map = new HashMap<Object, Object>();
 						
 						map.put("npc_name", res.getString("npc_name"));
+						map.put("npc_type", res.getInt("npc_type"));
+						map.put("x", res.getInt("x"));
+						map.put("y", res.getInt("y"));
+						map.put("z", res.getInt("z"));
 						map.put("quest",ChatColor.WHITE + res.getString("quest_detail"));
+						map.put("player_name", player.getName());
 						
 						Conversation conv = factory.withFirstPrompt(new TestPrompt()).withInitialSessionData(map).withPrefix(new ConversationPrefix(){
 							@Override
@@ -97,6 +102,8 @@ public class HollowTrait extends Trait {
 								plugin.getServer().getLogger().info("hello");
 								player.sendMessage("");
 								player.sendMessage(ChatColor.DARK_AQUA + "Goodbye!");
+								player.setWalkSpeed((float) 0.2);
+								
 							}
 					    });
 						c.close();
@@ -121,6 +128,7 @@ public class HollowTrait extends Trait {
     // Called every tick
     @Override
     public void run() {
+     
     }
 
 	@Override
@@ -131,6 +139,7 @@ public class HollowTrait extends Trait {
 	@Override
 	public void onDespawn() {
     }
+	
 
 	@Override
 	public void onSpawn() {
