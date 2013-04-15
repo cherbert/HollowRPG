@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -62,7 +63,7 @@ public class HollowRPGListener implements Listener {
 			statement2 = c.createStatement();
 			
 			
-			ResultSet chk_res = statement.executeQuery("SELECT * FROM active_quests LEFT JOIN quests ON quests.quest_id = active_quests.quest_id WHERE counter < objective_count AND objective_type = 2 AND player_name = '" + e.getEntity().getKiller().getName() + "'");
+			ResultSet chk_res = statement.executeQuery("SELECT * FROM active_quests LEFT JOIN quests ON quests.quest_id = active_quests.quest_id LEFT JOIN npcs ON npcs.id = quests.npc_id WHERE counter < objective_count AND objective_type = 2 AND player_name = '" + e.getEntity().getKiller().getName() + "'");
 			while(chk_res.next()) {
 		        
 				if(chk_res.getRow() > 0){
@@ -75,7 +76,11 @@ public class HollowRPGListener implements Listener {
 						
 						String message = " " + Integer.toString(counter) + "/" + Integer.toString(count);
 											
-						e.getEntity().getKiller().sendMessage("Quest: Kill " + entityKilled + message);
+						e.getEntity().getKiller().sendMessage(ChatColor.BLUE + "Quest Update: " + ChatColor.AQUA + "Kill " + entityKilled + message);
+						
+						if(count == counter) {
+							e.getEntity().getKiller().sendMessage(ChatColor.BLUE + "Quest Update: " + ChatColor.AQUA + "Completed! Return to " + chk_res.getString("npc_name") + " for your reward.");	
+						}
 						
 					}
 	            }

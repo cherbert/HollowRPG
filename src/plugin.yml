@@ -4,7 +4,7 @@ version: 1.1
 author: Chris Herbert
 description: Hollowworld Roleplaying Plugin.
 commands:
-    hollow:
+    my:
         description: A test command.
         usage: /<command>
 depend: [Citizens]

@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationAbandonedEvent;
 import org.bukkit.conversations.ConversationAbandonedListener;
@@ -17,6 +18,7 @@ import org.bukkit.conversations.ConversationFactory;
 import org.bukkit.conversations.ConversationPrefix;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.inventory.ItemStack;
 
 import net.citizensnpcs.Citizens;
 import net.citizensnpcs.api.npc.NPC;
@@ -37,7 +39,7 @@ public class HollowTrait extends Trait {
 	}
 	
 	@EventHandler
-	public void click(net.citizensnpcs.api.event.NPCRightClickEvent event){
+	public void click(final net.citizensnpcs.api.event.NPCRightClickEvent event){
 		final Player player = event.getClicker();
 		
 		if (IsConvo.containsKey(player.getName())) {
@@ -50,6 +52,9 @@ public class HollowTrait extends Trait {
 		
 		if(event.getNPC() == this.getNPC()) {
 			player.setWalkSpeed(0);
+			event.getNPC().getNavigator().getDefaultParameters().baseSpeed(0);
+			event.getNPC().getNavigator().setTarget(null);
+			//event.getNPC().getNavigator().setTarget(arg0)
 			Bukkit.dispatchCommand(player, "npc select");
 			IsConvo.put(player.getName(), 1);
 			c = plugin.myconn.open();
@@ -61,15 +66,29 @@ public class HollowTrait extends Trait {
 				if(chk_res.getRow() > 0) {
 					if(chk_res.getInt("objective_type") == 1 || chk_res.getInt("objective_type") == 2) {
 						if(chk_res.getInt("objective_count") == chk_res.getInt("counter")) {
-							player.sendMessage("Congrats!");
+							if(chk_res.getInt("reward_given") == 1) {
+								player.sendMessage("You have already done my quest.");	
+							} else {
+								player.sendMessage("Congrats! Have some Bread and Soup!");
+								ItemStack[] items = {new ItemStack(Material.BREAD), new ItemStack(Material.MUSHROOM_SOUP)};
+								player.getInventory().addItem(items);
+								int quest_id = chk_res.getInt("quest_id");
+								chk_existing.executeUpdate("UPDATE active_quests SET reward_given = 1 WHERE player_name = '" + player.getName() + "' AND quest_id = " + quest_id);
+								
+							}
+							
 							player.setWalkSpeed((float) 0.2);
 							IsConvo.put(player.getName(),0);
+							event.getNPC().getNavigator().getDefaultParameters().baseSpeed((float) 0.2);
+							event.getNPC().getNavigator().setTarget(null);
 							return;
 						}
 					}
 					player.sendMessage("Already on quest!");
 					player.setWalkSpeed((float) 0.2);
 					IsConvo.put(player.getName(),0);
+					event.getNPC().getNavigator().getDefaultParameters().baseSpeed((float) 0.2);
+					event.getNPC().getNavigator().setTarget(null);
 					return;
 				}
 			} catch (SQLException e) {
@@ -109,6 +128,7 @@ public class HollowTrait extends Trait {
 						map.put("quest",ChatColor.WHITE + res.getString("quest_detail"));
 						map.put("player_name", player.getName());
 						map.put("result", "0");
+						
 						final String confirm = res.getString("confirm_text");
 						
 						
@@ -132,7 +152,8 @@ public class HollowTrait extends Trait {
 								} else {
 									tmp = "Goodbye.";
 								}
-								
+								event.getNPC().getNavigator().getDefaultParameters().baseSpeed((float) 0.2);
+								event.getNPC().getNavigator().setTarget(null);
 								player.sendMessage(tmp);
 								player.setWalkSpeed((float) 0.2);
 							}

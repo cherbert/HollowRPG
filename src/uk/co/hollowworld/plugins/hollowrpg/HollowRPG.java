@@ -13,7 +13,8 @@ public class HollowRPG extends JavaPlugin{
 	public void onEnable(){
 		getServer().getPluginManager().registerEvents(new HollowRPGListener(), this);
 	       
-		getCommand("hollow").setExecutor(new HollowRPGCommands());
+		getCommand("my").setExecutor(new HollowRPGCommands());
+		
 		
 		if(getServer().getPluginManager().getPlugin("Citizens") == null || getServer().getPluginManager().getPlugin("Citizens").isEnabled() == false) {
 			getLogger().log(Level.SEVERE, "Citizens 2.0 not found or not enabled");
