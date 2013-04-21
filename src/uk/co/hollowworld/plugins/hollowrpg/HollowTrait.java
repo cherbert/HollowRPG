@@ -69,9 +69,17 @@ public class HollowTrait extends Trait {
 							if(chk_res.getInt("reward_given") == 1) {
 								player.sendMessage("You have already done my quest.");	
 							} else {
-								player.sendMessage("Congrats! Have some Bread and Soup!");
-								ItemStack[] items = {new ItemStack(Material.BREAD), new ItemStack(Material.MUSHROOM_SOUP)};
-								player.getInventory().addItem(items);
+								
+								if(chk_res.getInt("objective_type") == 2) {
+									player.sendMessage("Congratulations! Have some Bread and Soup!");
+									ItemStack[] items = {new ItemStack(Material.BREAD, 2), new ItemStack(Material.MUSHROOM_SOUP, 2)};
+									player.getInventory().addItem(items);
+								} else {
+									player.sendMessage("Congratulations! Have some Chainmail!");
+									ItemStack[] items = {new ItemStack(Material.CHAINMAIL_CHESTPLATE, 1),new ItemStack(Material.CHAINMAIL_BOOTS, 1),new ItemStack(Material.CHAINMAIL_HELMET, 1),new ItemStack(Material.CHAINMAIL_LEGGINGS, 1)};	
+									player.getInventory().addItem(items);	
+								}
+								
 								int quest_id = chk_res.getInt("quest_id");
 								chk_existing.executeUpdate("UPDATE active_quests SET reward_given = 1 WHERE player_name = '" + player.getName() + "' AND quest_id = " + quest_id);
 								

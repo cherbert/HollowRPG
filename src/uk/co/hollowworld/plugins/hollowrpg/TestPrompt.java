@@ -38,7 +38,7 @@ public class TestPrompt extends ValidatingPrompt {
 		//
 		// Objective Type #1 (Teleport Player)
 		//
-		if(arg0.getSessionData("objective_type").toString().equalsIgnoreCase("1")) {
+		if(arg0.getSessionData("objective_type").toString().equalsIgnoreCase("0")) {
 			if(arg1.toString().equalsIgnoreCase("travel")) {
 				World world = player.getWorld();
 				int x = (Integer) arg0.getSessionData("x");
@@ -55,7 +55,7 @@ public class TestPrompt extends ValidatingPrompt {
 		//
 		// Objective Type #2 (Kill / Collect Quest)
 		//
-		if(arg0.getSessionData("objective_type").toString().equalsIgnoreCase("2")) {
+		if(arg0.getSessionData("objective_type").toString().equalsIgnoreCase("1") || arg0.getSessionData("objective_type").toString().equalsIgnoreCase("2")) {
 			if(arg1.toString().equalsIgnoreCase("accept")) {
 				c = plugin.myconn.open();
 				arg0.setSessionData("result", "1");
