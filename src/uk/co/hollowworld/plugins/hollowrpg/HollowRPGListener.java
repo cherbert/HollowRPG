@@ -79,7 +79,8 @@ public class HollowRPGListener implements Listener {
 							counter = count;
 							event.getItem().remove();
 							updatestring = "counter = " + count;
-							ItemStack[] item = {new ItemStack(264, itemdiff)};
+							
+							ItemStack[] item = {new ItemStack(event.getItem().getItemStack().getType(), itemdiff)};
 							p.getInventory().addItem(item);
 							event.setCancelled(true);
 						} else {

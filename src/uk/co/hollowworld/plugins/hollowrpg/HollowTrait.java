@@ -54,7 +54,6 @@ public class HollowTrait extends Trait {
 			player.setWalkSpeed(0);
 			event.getNPC().getNavigator().getDefaultParameters().baseSpeed(0);
 			event.getNPC().getNavigator().setTarget(null);
-			//event.getNPC().getNavigator().setTarget(arg0)
 			Bukkit.dispatchCommand(player, "npc select");
 			IsConvo.put(player.getName(), 1);
 			c = plugin.myconn.open();
@@ -70,19 +69,33 @@ public class HollowTrait extends Trait {
 								player.sendMessage("You have already done my quest.");	
 							} else {
 								
-								if(chk_res.getInt("objective_type") == 2) {
-									player.sendMessage("Congratulations! Have some Bread and Soup!");
-									ItemStack[] items = {new ItemStack(Material.BREAD, 2), new ItemStack(Material.MUSHROOM_SOUP, 2)};
-									player.getInventory().addItem(items);
-								} else {
-									player.sendMessage("Congratulations! Have some Chainmail!");
-									ItemStack[] items = {new ItemStack(Material.CHAINMAIL_CHESTPLATE, 1),new ItemStack(Material.CHAINMAIL_BOOTS, 1),new ItemStack(Material.CHAINMAIL_HELMET, 1),new ItemStack(Material.CHAINMAIL_LEGGINGS, 1)};	
-									player.getInventory().addItem(items);	
-								}
+									//
+									// Give item reward
+									//
+									if(!chk_res.getString("objective_item_reward").equals(null)) {
+										ItemStack[] items = {new ItemStack(Material.getMaterial(chk_res.getString("objective_item_reward")), 2)};
+										player.getInventory().addItem(items);
+									}
 								
-								int quest_id = chk_res.getInt("quest_id");
-								chk_existing.executeUpdate("UPDATE active_quests SET reward_given = 1 WHERE player_name = '" + player.getName() + "' AND quest_id = " + quest_id);
-								
+									//
+									// Give money reward
+									//
+									if(chk_res.getInt("objective_money_reward") > 0) {
+										plugin.getServer().dispatchCommand(Bukkit.getConsoleSender(), "money give "+ player.getName() + " " + chk_res.getInt("objective_money_reward"));
+									}
+									
+									//
+									// Delete Quest from database if repeatable otherwise update as reward given
+									//
+									if(chk_res.getInt("is_repeatable") == 1) {
+										chk_existing.executeUpdate("DELETE FROM active_quests WHERE quest_id = " + chk_res.getInt("quest_id") + " AND player_name = '" + player.getName() + "'");
+									} else {
+										int quest_id = chk_res.getInt("quest_id");
+										chk_existing.executeUpdate("UPDATE active_quests SET reward_given = 1 WHERE player_name = '" + player.getName() + "' AND quest_id = " + quest_id);
+									}
+									
+									player.sendMessage(chk_res.getString("objective_text_reward"));
+
 							}
 							
 							player.setWalkSpeed((float) 0.2);
