@@ -69,32 +69,39 @@ public class HollowTrait extends Trait {
 								player.sendMessage("You have already done my quest.");	
 							} else {
 								
-									//
-									// Give item reward
-									//
-									if(!chk_res.getString("objective_item_reward").equals(null)) {
-										ItemStack[] items = {new ItemStack(Material.getMaterial(chk_res.getString("objective_item_reward")), 2)};
-										player.getInventory().addItem(items);
-									}
+								//
+								// Give item reward
+								//
+								if(!chk_res.getString("objective_item_reward").equals(null)) {
+									ItemStack[] items = {new ItemStack(Material.getMaterial(chk_res.getString("objective_item_reward").toUpperCase()), chk_res.getInt("objective_item_reward_qty"))};
+									player.getInventory().addItem(items);
+								}
+							
+								//
+								// Give money reward
+								//
+								if(chk_res.getInt("objective_money_reward") > 0) {
+									plugin.getServer().dispatchCommand(Bukkit.getConsoleSender(), "money give "+ player.getName() + " " + chk_res.getInt("objective_money_reward"));
+								}
 								
-									//
-									// Give money reward
-									//
-									if(chk_res.getInt("objective_money_reward") > 0) {
-										plugin.getServer().dispatchCommand(Bukkit.getConsoleSender(), "money give "+ player.getName() + " " + chk_res.getInt("objective_money_reward"));
-									}
-									
-									//
-									// Delete Quest from database if repeatable otherwise update as reward given
-									//
-									if(chk_res.getInt("is_repeatable") == 1) {
-										chk_existing.executeUpdate("DELETE FROM active_quests WHERE quest_id = " + chk_res.getInt("quest_id") + " AND player_name = '" + player.getName() + "'");
-									} else {
-										int quest_id = chk_res.getInt("quest_id");
-										chk_existing.executeUpdate("UPDATE active_quests SET reward_given = 1 WHERE player_name = '" + player.getName() + "' AND quest_id = " + quest_id);
-									}
-									
-									player.sendMessage(chk_res.getString("objective_text_reward"));
+								//
+								// Send Reward Text to Player
+								//
+								player.sendMessage("");
+								player.sendMessage(ChatColor.DARK_GREEN + "[" + ChatColor.GREEN + chk_res.getString("npc_name") + ChatColor.DARK_GREEN + "] " + ChatColor.WHITE + chk_res.getString("objective_text_reward"));
+								player.sendMessage("");
+								
+								//
+								// Delete Quest from database if repeatable otherwise update as reward given
+								//
+								if(chk_res.getInt("is_repeatable") == 1) {
+									chk_existing.executeUpdate("DELETE FROM active_quests WHERE quest_id = " + chk_res.getInt("quest_id") + " AND player_name = '" + player.getName() + "'");
+								} else {
+									int quest_id = chk_res.getInt("quest_id");
+									chk_existing.executeUpdate("UPDATE active_quests SET reward_given = 1 WHERE player_name = '" + player.getName() + "' AND quest_id = " + quest_id);
+								}
+								
+								
 
 							}
 							
@@ -105,7 +112,9 @@ public class HollowTrait extends Trait {
 							return;
 						}
 					}
-					player.sendMessage("Already on quest!");
+					player.sendMessage("");
+					player.sendMessage(ChatColor.AQUA + "You are already doing my quest!" + ChatColor.WHITE);
+					player.sendMessage("");
 					player.setWalkSpeed((float) 0.2);
 					IsConvo.put(player.getName(),0);
 					event.getNPC().getNavigator().getDefaultParameters().baseSpeed((float) 0.2);
@@ -128,15 +137,15 @@ public class HollowTrait extends Trait {
 					player.sendMessage("Greetings! I am sorry but I have no quests for you.");
 					IsConvo.put(player.getName(),0);
 					player.setWalkSpeed((float) 0.2);
+					event.getNPC().getNavigator().getDefaultParameters().baseSpeed((float) 0.2);
+					event.getNPC().getNavigator().setTarget(null);
 				} else {
 					NPC npc;
 					npc =	((Citizens)	Bukkit.getServer().getPluginManager().getPlugin("Citizens")).getNPCSelector().getSelected(player);
 					if(npc != null ){
 						player.sendMessage("");
-						player.sendMessage(res.getString("greeting_text"));
 						player.sendMessage(ChatColor.YELLOW + "You are now in NPC Chat mode. To exit type " + ChatColor.WHITE + "/exit");
 						player.sendMessage("");
-						
 						
 						Map<Object, Object> map = new HashMap<Object, Object>();
 						
@@ -151,6 +160,7 @@ public class HollowTrait extends Trait {
 						map.put("result", "0");
 						
 						final String confirm = res.getString("confirm_text");
+						final String npc_name = res.getString("npc_name");
 						
 						
 						Conversation conv = factory.withFirstPrompt(new TestPrompt()).withInitialSessionData(map).withPrefix(new ConversationPrefix(){
@@ -167,7 +177,7 @@ public class HollowTrait extends Trait {
 							public void conversationAbandoned(ConversationAbandonedEvent arg0) {
 					        	String tmp = null;
 					        	IsConvo.put(player.getName(),0);
-								player.sendMessage("");
+								
 								if(arg0.getContext().getSessionData("result").toString().equalsIgnoreCase("1")) {
 									tmp = HollowRPG.textColor(confirm);	
 								} else {
@@ -175,7 +185,7 @@ public class HollowTrait extends Trait {
 								}
 								event.getNPC().getNavigator().getDefaultParameters().baseSpeed((float) 0.2);
 								event.getNPC().getNavigator().setTarget(null);
-								player.sendMessage(tmp);
+								player.sendMessage(ChatColor.BLUE + "[" + ChatColor.AQUA + "NPC Chat" + ChatColor.BLUE + "] " + ChatColor.DARK_GREEN + "[" + ChatColor.GREEN + npc_name + ChatColor.DARK_GREEN + "] " + ChatColor.WHITE + tmp);
 								player.setWalkSpeed((float) 0.2);
 							}
 
