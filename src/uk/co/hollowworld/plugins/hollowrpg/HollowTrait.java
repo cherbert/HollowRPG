@@ -57,6 +57,7 @@ public class HollowTrait extends Trait {
 			Bukkit.dispatchCommand(player, "npc select");
 			IsConvo.put(player.getName(), 1);
 			c = plugin.myconn.open();
+			
 			try {
 				Statement chk_existing = c.createStatement();
 				ResultSet chk_res;
