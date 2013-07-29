@@ -121,7 +121,6 @@ public class HollowTrait extends Trait {
 				ResultSet res;
 				res = statement.executeQuery("SELECT * FROM quests WHERE npc_name = '" + event.getNPC().getFullName() + "'");
 				res.next();
-		
 				if(res.getRow() == 0) {
 					player.sendMessage("Greetings! I am sorry but I have no quests for you.");
 				} else {

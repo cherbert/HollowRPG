@@ -37,7 +37,6 @@ public class HollowRPGCommands implements CommandExecutor{
 					sender.sendMessage("Your destination is currenty set to: " + ChatColor.DARK_AQUA + " Riddleport");
 					return true;
 				}
-				
 			}
 		}
 		return false;
