@@ -65,7 +65,7 @@ public class HollowRPGListener implements Listener {
 			statement2 = c.createStatement();
 			String updatestring = null;
 			int itemdiff = 0;
-			ResultSet chk_res = statement.executeQuery("SELECT * FROM active_quests LEFT JOIN quests ON quests.quest_id = active_quests.quest_id LEFT JOIN npcs ON npcs.id = quests.npc_id WHERE counter < objective_count AND (objective_type = 2 OR objective_type = 1) AND player_name = '" + p.getName() + "'");
+			ResultSet chk_res = statement.executeQuery("SELECT * FROM active_quests LEFT JOIN quests ON quests.quest_id = active_quests.quest_id WHERE counter < objective_count AND (objective_type = 2 OR objective_type = 1) AND player_name = '" + p.getName() + "'");
 			while(chk_res.next()) {
 		        
 				if(chk_res.getRow() > 0){
@@ -132,7 +132,7 @@ public class HollowRPGListener implements Listener {
 			statement2 = c.createStatement();
 			
 			
-			ResultSet chk_res = statement.executeQuery("SELECT * FROM active_quests LEFT JOIN quests ON quests.quest_id = active_quests.quest_id LEFT JOIN npcs ON npcs.id = quests.npc_id WHERE counter < objective_count AND objective_type = 2 AND player_name = '" + e.getEntity().getKiller().getName() + "'");
+			ResultSet chk_res = statement.executeQuery("SELECT * FROM active_quests LEFT JOIN quests ON quests.quest_id = active_quests.quest_id WHERE counter < objective_count AND objective_type = 2 AND player_name = '" + e.getEntity().getKiller().getName() + "'");
 			while(chk_res.next()) {
 		        
 				if(chk_res.getRow() > 0){

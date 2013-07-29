@@ -51,23 +51,19 @@ public class HollowTrait extends Trait {
 		this.factory = new ConversationFactory(plugin);
 		
 		if(event.getNPC() == this.getNPC()) {
-			player.setWalkSpeed(0);
-			event.getNPC().getNavigator().getDefaultParameters().baseSpeed(0);
-			event.getNPC().getNavigator().setTarget(null);
-			Bukkit.dispatchCommand(player, "npc select");
-			IsConvo.put(player.getName(), 1);
+			
 			c = plugin.myconn.open();
 			
 			try {
 				Statement chk_existing = c.createStatement();
 				ResultSet chk_res;
-				chk_res = chk_existing.executeQuery("SELECT * FROM active_quests LEFT JOIN quests ON quests.quest_id = active_quests.quest_id WHERE npc_id = " + event.getNPC().getId() + " AND player_name = '" + player.getName() + "'");
+				chk_res = chk_existing.executeQuery("SELECT * FROM active_quests LEFT JOIN quests ON quests.quest_id = active_quests.quest_id WHERE npc_name = '" + event.getNPC().getFullName() + "' AND player_name = '" + player.getName() + "'");
 				chk_res.next();
 				if(chk_res.getRow() > 0) {
 					if(chk_res.getInt("objective_type") == 1 || chk_res.getInt("objective_type") == 2) {
 						if(chk_res.getInt("objective_count") == chk_res.getInt("counter")) {
 							if(chk_res.getInt("reward_given") == 1) {
-								player.sendMessage("You have already done my quest.");	
+								player.sendMessage(ChatColor.DARK_GREEN + "[" + ChatColor.GREEN + event.getNPC().getFullName() + ChatColor.DARK_GREEN + "] " + ChatColor.WHITE + "You have already done my quest.");	
 							} else {
 								
 								//
@@ -89,7 +85,7 @@ public class HollowTrait extends Trait {
 								// Send Reward Text to Player
 								//
 								player.sendMessage("");
-								player.sendMessage(ChatColor.DARK_GREEN + "[" + ChatColor.GREEN + chk_res.getString("npc_name") + ChatColor.DARK_GREEN + "] " + ChatColor.WHITE + chk_res.getString("objective_text_reward"));
+								player.sendMessage(ChatColor.DARK_GREEN + "[" + ChatColor.GREEN + event.getNPC().getFullName() + ChatColor.DARK_GREEN + "] " + ChatColor.WHITE + chk_res.getString("objective_text_reward"));
 								player.sendMessage("");
 								
 								//
@@ -106,20 +102,12 @@ public class HollowTrait extends Trait {
 
 							}
 							
-							player.setWalkSpeed((float) 0.2);
-							IsConvo.put(player.getName(),0);
-							event.getNPC().getNavigator().getDefaultParameters().baseSpeed((float) 0.2);
-							event.getNPC().getNavigator().setTarget(null);
 							return;
 						}
 					}
-					player.sendMessage("");
-					player.sendMessage(ChatColor.AQUA + "You are already doing my quest!" + ChatColor.WHITE);
-					player.sendMessage("");
-					player.setWalkSpeed((float) 0.2);
-					IsConvo.put(player.getName(),0);
-					event.getNPC().getNavigator().getDefaultParameters().baseSpeed((float) 0.2);
-					event.getNPC().getNavigator().setTarget(null);
+					
+					player.sendMessage(ChatColor.DARK_GREEN + "[" + ChatColor.GREEN + event.getNPC().getFullName() + ChatColor.DARK_GREEN + "] " + ChatColor.WHITE + "You are already doing my quest!" + ChatColor.WHITE);
+					
 					return;
 				}
 			} catch (SQLException e) {
@@ -131,16 +119,18 @@ public class HollowTrait extends Trait {
 			try {
 				Statement statement = c.createStatement();
 				ResultSet res;
-				res = statement.executeQuery("SELECT * FROM npcs LEFT JOIN quests ON quests.npc_id = npcs.id WHERE npc_id = " + event.getNPC().getId());
+				res = statement.executeQuery("SELECT * FROM quests WHERE npc_name = '" + event.getNPC().getFullName() + "'");
 				res.next();
 		
 				if(res.getRow() == 0) {
 					player.sendMessage("Greetings! I am sorry but I have no quests for you.");
-					IsConvo.put(player.getName(),0);
-					player.setWalkSpeed((float) 0.2);
-					event.getNPC().getNavigator().getDefaultParameters().baseSpeed((float) 0.2);
-					event.getNPC().getNavigator().setTarget(null);
 				} else {
+					player.setWalkSpeed((float) -1);
+					event.getNPC().getNavigator().getDefaultParameters().baseSpeed((float) 0);
+					event.getNPC().getNavigator().setTarget(null);
+					Bukkit.dispatchCommand(player, "npc select");
+					IsConvo.put(player.getName(), 1);
+					
 					NPC npc;
 					npc =	((Citizens)	Bukkit.getServer().getPluginManager().getPlugin("Citizens")).getNPCSelector().getSelected(player);
 					if(npc != null ){
@@ -151,7 +141,7 @@ public class HollowTrait extends Trait {
 						Map<Object, Object> map = new HashMap<Object, Object>();
 						
 						map.put("quest_id", res.getString("quest_id"));
-						map.put("npc_name", res.getString("npc_name"));
+						map.put("npc_name", event.getNPC().getFullName());
 						map.put("objective_type", res.getInt("objective_type"));
 						map.put("x", res.getInt("x"));
 						map.put("y", res.getInt("y"));
@@ -160,9 +150,7 @@ public class HollowTrait extends Trait {
 						map.put("player_name", player.getName());
 						map.put("result", "0");
 						
-						final String confirm = res.getString("confirm_text");
-						final String npc_name = res.getString("npc_name");
-						
+						final String confirm = res.getString("confirm_text");					
 						
 						Conversation conv = factory.withFirstPrompt(new TestPrompt()).withInitialSessionData(map).withPrefix(new ConversationPrefix(){
 							@Override
@@ -186,8 +174,9 @@ public class HollowTrait extends Trait {
 								}
 								event.getNPC().getNavigator().getDefaultParameters().baseSpeed((float) 0.2);
 								event.getNPC().getNavigator().setTarget(null);
-								player.sendMessage(ChatColor.BLUE + "[" + ChatColor.AQUA + "NPC Chat" + ChatColor.BLUE + "] " + ChatColor.DARK_GREEN + "[" + ChatColor.GREEN + npc_name + ChatColor.DARK_GREEN + "] " + ChatColor.WHITE + tmp);
+								player.sendMessage(ChatColor.BLUE + "[" + ChatColor.AQUA + "NPC Chat" + ChatColor.BLUE + "] " + ChatColor.DARK_GREEN + "[" + ChatColor.GREEN + event.getNPC().getFullName() + ChatColor.DARK_GREEN + "] " + ChatColor.WHITE + tmp);
 								player.setWalkSpeed((float) 0.2);
+								
 							}
 
 							
