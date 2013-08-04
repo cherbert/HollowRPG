@@ -21,6 +21,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.inventory.ItemStack;
 
 import net.citizensnpcs.Citizens;
+import net.citizensnpcs.api.ai.speech.SpeechController;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.api.trait.Trait;
 
@@ -125,7 +126,7 @@ public class HollowTrait extends Trait {
 					player.sendMessage("Greetings! I am sorry but I have no quests for you.");
 				} else {
 					player.setWalkSpeed((float) -1);
-					event.getNPC().getNavigator().getDefaultParameters().baseSpeed((float) 0);
+					event.getNPC().getNavigator().getDefaultParameters().baseSpeed((float) -1);
 					event.getNPC().getNavigator().setTarget(null);
 					Bukkit.dispatchCommand(player, "npc select");
 					IsConvo.put(player.getName(), 1);
@@ -171,7 +172,7 @@ public class HollowTrait extends Trait {
 								} else {
 									tmp = "Goodbye.";
 								}
-								event.getNPC().getNavigator().getDefaultParameters().baseSpeed((float) 0.2);
+								event.getNPC().getNavigator().getDefaultParameters().baseSpeed((float) 0.8);
 								event.getNPC().getNavigator().setTarget(null);
 								player.sendMessage(ChatColor.BLUE + "[" + ChatColor.AQUA + "NPC Chat" + ChatColor.BLUE + "] " + ChatColor.DARK_GREEN + "[" + ChatColor.GREEN + event.getNPC().getFullName() + ChatColor.DARK_GREEN + "] " + ChatColor.WHITE + tmp);
 								player.setWalkSpeed((float) 0.2);
@@ -210,6 +211,7 @@ public class HollowTrait extends Trait {
 	@Override
 	public void onAttach() {
 		plugin.getServer().getLogger().info(npc.getName() + " has been assigned the HollowRPG Trait!");
+		npc.getNavigator().getDefaultParameters().baseSpeed((float) 0.8);
 	}
 
 	@Override
@@ -219,7 +221,7 @@ public class HollowTrait extends Trait {
 
 	@Override
 	public void onSpawn() {
-
+		
 	}
 
 	@Override

@@ -6,7 +6,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -15,7 +14,9 @@ public class HollowRPGCommands implements CommandExecutor{
 	HollowRPG plugin = (HollowRPG) Bukkit.getServer().getPluginManager().getPlugin("HollowRPG");
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args){
-		
+		//
+		// /my {quests}
+		//
 		if(commandLabel.equalsIgnoreCase("my")) {
 			if(args.length == 1) {
 				if(args[0].equalsIgnoreCase("quests")) {
@@ -33,12 +34,9 @@ public class HollowRPGCommands implements CommandExecutor{
 						e.printStackTrace();
 					}
 				}
-				if(args[0].equalsIgnoreCase("destination")) {
-					sender.sendMessage("Your destination is currenty set to: " + ChatColor.DARK_AQUA + " Riddleport");
-					return true;
-				}
 			}
 		}
 		return false;
+
 	}
 }

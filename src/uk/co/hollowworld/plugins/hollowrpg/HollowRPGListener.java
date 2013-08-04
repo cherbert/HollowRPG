@@ -1,9 +1,14 @@
 package uk.co.hollowworld.plugins.hollowrpg;
 
+import java.net.InetSocketAddress;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+
+import net.citizensnpcs.api.event.NPCSpawnEvent;
+import net.citizensnpcs.api.event.PlayerCreateNPCEvent;
+import net.citizensnpcs.api.npc.NPC;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -16,11 +21,12 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 
 public class HollowRPGListener implements Listener {
-	
+	Connection c = null;
 	HollowRPG plugin = (HollowRPG) Bukkit.getServer().getPluginManager().getPlugin("HollowRPG");
 	
 	@EventHandler
@@ -33,6 +39,56 @@ public class HollowRPGListener implements Listener {
 	public void onJoin(PlayerJoinEvent event){
 		Player p = event.getPlayer();
 		p.sendMessage("...Reticulating Splines...");
+		p.sendMessage(ChatColor.LIGHT_PURPLE + "Welcome to HollowRPG Alpha 0.50");
+		InetSocketAddress ipAddress = p.getAddress();
+		//p.sendMessage("IP Address: " + ipAddress);
+		c = plugin.myconn.open();
+		Statement statement = null;
+		try {
+			statement = c.createStatement();
+			statement.executeUpdate("DELETE FROM ip WHERE player = '" + p.getName() + "'");
+			statement.executeUpdate("INSERT INTO ip (player,ip) VALUES ('" + p.getName() + "','" + ipAddress + "')");
+			statement.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		
+	}
+	
+	@EventHandler
+    public void onPlayerCreateNPC(PlayerCreateNPCEvent event) {
+		NPC citizen = event.getNPC();
+		citizen.addTrait(HollowTrait.class);
+		event.getCreator().sendMessage("HollowRPG Trait Added.");
+	}
+	
+	@EventHandler
+	public void onNPCspawn(NPCSpawnEvent event) {
+		NPC citizen = event.getNPC();
+		if(citizen.hasTrait(HollowTrait.class)) {
+			//citizen.addTrait(HollowTrait.class);
+		} else {
+			citizen.addTrait(HollowTrait.class);
+			
+		}
+	}
+	
+	@EventHandler
+	public void onQuit(PlayerQuitEvent event){
+		Player p = event.getPlayer();
+		c = plugin.myconn.open();
+		Statement statement = null;
+		try {
+			statement = c.createStatement();
+			statement.executeUpdate("DELETE FROM ip WHERE player = '" + p.getName() + "'");
+			statement.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	@EventHandler
 	public void onDeath(PlayerDeathEvent e) {
@@ -65,7 +121,7 @@ public class HollowRPGListener implements Listener {
 			statement2 = c.createStatement();
 			String updatestring = null;
 			int itemdiff = 0;
-			ResultSet chk_res = statement.executeQuery("SELECT * FROM active_quests LEFT JOIN quests ON quests.quest_id = active_quests.quest_id WHERE counter < objective_count AND (objective_type = 2 OR objective_type = 1) AND player_name = '" + p.getName() + "'");
+			ResultSet chk_res = statement.executeQuery("SELECT * FROM active_quests LEFT JOIN quests ON quests.quest_id = active_quests.quest_id WHERE counter < objective_count AND objective_type = 1 AND player_name = '" + p.getName() + "'");
 			while(chk_res.next()) {
 		        
 				if(chk_res.getRow() > 0){
@@ -145,7 +201,7 @@ public class HollowRPGListener implements Listener {
 						
 						String message = " " + Integer.toString(counter) + "/" + Integer.toString(count);
 											
-						e.getEntity().getKiller().sendMessage(ChatColor.BLUE + "Quest Update: " + ChatColor.AQUA + "Kill " + entityKilled + message);
+						e.getEntity().getKiller().sendMessage(ChatColor.BLUE + "Quest Update: " + ChatColor.AQUA + "Kill " + entityKilled.toUpperCase() + message);
 						
 						if(count == counter) {
 							e.getEntity().getKiller().sendMessage(ChatColor.BLUE + "Quest Update: " + ChatColor.AQUA + "Completed! Return to " + chk_res.getString("npc_name") + " for your reward.");	

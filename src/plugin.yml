@@ -7,5 +7,11 @@ commands:
     my:
         description: A test command.
         usage: /<command>
+    destination:
+        description: Destination
+        usage: /<command>
+    dest:
+        description: Destination
+        usage: /<command>
 depend: [Citizens]
 softdepend: [Citizens]
