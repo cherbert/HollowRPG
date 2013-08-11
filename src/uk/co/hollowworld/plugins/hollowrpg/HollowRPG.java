@@ -38,7 +38,10 @@ public class HollowRPG extends JavaPlugin{
 		sender.sendMessage("");
 		sender.sendMessage(ChatColor.GOLD + "[HollowRPG] --== " + ChatColor.LIGHT_PURPLE + " HollowRPG " + ChatColor.GOLD + " ==--");
 		sender.sendMessage(ChatColor.GOLD + "[HollowRPG] " + ChatColor.WHITE + text);
-	
+		return text;
+	}
+	public static String message2(String text, CommandSender sender) {
+		sender.sendMessage(ChatColor.GOLD + "[HollowRPG] " + ChatColor.WHITE + text);
 		return text;
 	}
 

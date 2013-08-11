@@ -20,10 +20,8 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.inventory.ItemStack;
 
 public class HollowRPGListener implements Listener {
 	Connection c = null;
@@ -39,7 +37,7 @@ public class HollowRPGListener implements Listener {
 	public void onJoin(PlayerJoinEvent event){
 		Player p = event.getPlayer();
 		p.sendMessage("...Reticulating Splines...");
-		p.sendMessage(ChatColor.LIGHT_PURPLE + "Welcome to HollowRPG Alpha 0.50");
+		p.sendMessage(ChatColor.LIGHT_PURPLE + "Welcome to HollowRPG Beta 0.1");
 		InetSocketAddress ipAddress = p.getAddress();
 		//p.sendMessage("IP Address: " + ipAddress);
 		c = plugin.myconn.open();
@@ -104,7 +102,7 @@ public class HollowRPGListener implements Listener {
 			player.setWalkSpeed((float) 0.2);
 			HollowTrait.IsConvo.put(player.getName(),0);
 	}
-	@EventHandler
+/*	@EventHandler
     public void onPickup(PlayerPickupItemEvent event){
 		ItemStack i = event.getItem().getItemStack();
 		@SuppressWarnings("unused")
@@ -139,9 +137,12 @@ public class HollowRPGListener implements Listener {
 							ItemStack[] item = {new ItemStack(event.getItem().getItemStack().getType(), itemdiff)};
 							p.getInventory().addItem(item);
 							event.setCancelled(true);
+							
 						} else {
 							event.getItem().remove();
+							
 							event.setCancelled(true);
+							
 							updatestring = "counter = counter + " + itemcount;
 						}
 						
@@ -171,7 +172,7 @@ public class HollowRPGListener implements Listener {
 		} catch (SQLException e1) {
 			e1.printStackTrace();	
 		}
-    }
+    }*/
 	@EventHandler
     public void onEntityDeath(EntityDeathEvent e){
 		if(e.getEntity().getKiller() == null){

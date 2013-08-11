@@ -9,7 +9,9 @@ import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.conversations.Conversation;
 import org.bukkit.conversations.ConversationAbandonedEvent;
 import org.bukkit.conversations.ConversationAbandonedListener;
@@ -21,7 +23,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.inventory.ItemStack;
 
 import net.citizensnpcs.Citizens;
-import net.citizensnpcs.api.ai.speech.SpeechController;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.api.trait.Trait;
 
@@ -54,14 +55,16 @@ public class HollowTrait extends Trait {
 		if(event.getNPC() == this.getNPC()) {
 			
 			c = plugin.myconn.open();
-			
+			//
+			// Kill Quest Check
+			//
 			try {
 				Statement chk_existing = c.createStatement();
 				ResultSet chk_res;
 				chk_res = chk_existing.executeQuery("SELECT * FROM active_quests LEFT JOIN quests ON quests.quest_id = active_quests.quest_id WHERE npc_name = '" + event.getNPC().getFullName() + "' AND player_name = '" + player.getName() + "'");
 				chk_res.next();
 				if(chk_res.getRow() > 0) {
-					if(chk_res.getInt("objective_type") == 1 || chk_res.getInt("objective_type") == 2) {
+					if(chk_res.getInt("objective_type") == 2) {
 						if(chk_res.getInt("objective_count") == chk_res.getInt("counter")) {
 							if(chk_res.getInt("reward_given") == 1) {
 								player.sendMessage(ChatColor.DARK_GREEN + "[" + ChatColor.GREEN + event.getNPC().getFullName() + ChatColor.DARK_GREEN + "] " + ChatColor.WHITE + "You have already done my quest.");	
@@ -71,8 +74,14 @@ public class HollowTrait extends Trait {
 								// Give item reward
 								//
 								if(!chk_res.getString("objective_item_reward").equals(null)) {
-									ItemStack[] items = {new ItemStack(Material.getMaterial(chk_res.getString("objective_item_reward").toUpperCase()), chk_res.getInt("objective_item_reward_qty"))};
+									
+									String item = chk_res.getString("objective_item_reward");
+									Integer qty = chk_res.getInt("objective_item_reward_qty");
+									
+									Material MaterialItem = Material.getMaterial(item);
+									ItemStack items = new ItemStack(MaterialItem, qty);
 									player.getInventory().addItem(items);
+									
 								}
 							
 								//
@@ -135,7 +144,7 @@ public class HollowTrait extends Trait {
 					npc =	((Citizens)	Bukkit.getServer().getPluginManager().getPlugin("Citizens")).getNPCSelector().getSelected(player);
 					if(npc != null ){
 						player.sendMessage("");
-						player.sendMessage(ChatColor.YELLOW + "You are now in NPC Chat mode. To exit type " + ChatColor.WHITE + "/exit");
+						player.sendMessage(ChatColor.YELLOW + "You are now in NPC Chat mode.");
 						player.sendMessage("");
 						
 						Map<Object, Object> map = new HashMap<Object, Object>();
@@ -143,11 +152,33 @@ public class HollowTrait extends Trait {
 						map.put("quest_id", res.getString("quest_id"));
 						map.put("npc_name", event.getNPC().getFullName());
 						map.put("objective_type", res.getInt("objective_type"));
-						map.put("x", res.getInt("x"));
-						map.put("y", res.getInt("y"));
-						map.put("z", res.getInt("z"));
-						map.put("quest",ChatColor.WHITE + res.getString("quest_detail"));
+
+						if(res.getInt("objective_type") == 0) {
+							Statement statement2 = c.createStatement();
+							ResultSet res2;
+							res2 = statement2.executeQuery("SELECT * FROM player_destinations LEFT JOIN destinations ON destinations.destination_name = player_destinations.destination WHERE player = '" + player.getName() + "'");
+							res2.first();
+							
+							if(res2.getRow() > 0) {
+								// If no default destination found
+								map.put("quest",ChatColor.DARK_GREEN + "Welcome! What distant lands do ya seek?\n\n" + ChatColor.WHITE + "[1]" + ChatColor.GRAY + " Take me on an adventure!\n" + ChatColor.WHITE + "[2]" + ChatColor.GRAY + " Browse Destinations\n" + ChatColor.WHITE + "[3]" + ChatColor.GRAY + " Travel to " + res2.getString("destination") + ChatColor.WHITE + "\n\n" + ChatColor.AQUA + "or Type " + ChatColor.GRAY + "exit " + ChatColor.AQUA + "if you wish to quit NPC Chat.");	
+								map.put("dest_name", res2.getString("destination_name"));
+								map.put("destination", res2.getString("destination_description"));
+								
+								map.put("x", res2.getInt("x"));
+								map.put("y", res2.getInt("y"));
+								map.put("z", res2.getInt("z"));
+								
+							} else {
+								// If default destination found
+								map.put("quest",ChatColor.DARK_GREEN + "Welcome! What distant lands do ya seek?\n\n" + ChatColor.WHITE + "[1]" + ChatColor.GRAY + " Take me on an adventure!\n" + ChatColor.WHITE + "[2]" + ChatColor.GRAY + " Browse Destinations" + ChatColor.WHITE+ "\n\n" + ChatColor.AQUA + "or Type " + ChatColor.GRAY + "exit " + ChatColor.AQUA + "if you wish to quit NPC Chat.");
+							}
+						} else {
+							map.put("quest",ChatColor.WHITE + res.getString("quest_detail"));
+						}
+						
 						map.put("player_name", player.getName());
+						
 						map.put("result", "0");
 						
 						final String confirm = res.getString("confirm_text");					
@@ -156,9 +187,9 @@ public class HollowTrait extends Trait {
 							@Override
 							public String getPrefix(ConversationContext context)
 							{
-								return ChatColor.BLUE + "[" + ChatColor.AQUA + "NPC Chat" + ChatColor.BLUE + "] " + ChatColor.WHITE;
+								return ChatColor.BLUE + "[" + ChatColor.AQUA + "NPC" + ChatColor.BLUE + "] " + ChatColor.WHITE;
 							}
-						}).withEscapeSequence("/exit").buildConversation(Bukkit.getPlayer(player.getName()));
+						}).withEscapeSequence("exit").buildConversation(Bukkit.getPlayer(player.getName()));
 						
 						conv.addConversationAbandonedListener(new ConversationAbandonedListener() {
 							 
@@ -169,6 +200,16 @@ public class HollowTrait extends Trait {
 								
 								if(arg0.getContext().getSessionData("result").toString().equalsIgnoreCase("1")) {
 									tmp = HollowRPG.textColor(confirm);	
+								} else if(arg0.getContext().getSessionData("result").toString().equalsIgnoreCase("12")) {
+									World world = player.getWorld();
+									int x = (Integer) arg0.getContext().getSessionData("x");
+									int y = (Integer) arg0.getContext().getSessionData("y");
+									int z = (Integer) arg0.getContext().getSessionData("z");
+					                Location location = new Location(world,x,y,z);
+									player.teleport(location);
+									
+									tmp = ChatColor.GREEN + "Welcome to " + arg0.getContext().getSessionData("dest_name").toString() + "\n\n" + ChatColor.AQUA + arg0.getContext().getSessionData("destination").toString() + "\n\n";	
+									
 								} else {
 									tmp = "Goodbye.";
 								}
